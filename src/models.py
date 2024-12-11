@@ -7,42 +7,46 @@ from eralchemy2 import render_er
 
 Base = declarative_base()
 
-class Usuario(Base):
-    __tablename__ = 'usuario'
-    id_usuario = Column(Integer, primary_key=True)
-    nombre = Column(String(255))
-    apellido = Column(String(255))
-    password = Column(String(255))
-    email = Column(String(255))
-    fecha_suscripcion = Column(String(255))
+class User(Base):
+    __tablename__ = 'user'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(120), nullable=False)
+    lastname = Column(String(120), nullable=False)
+    password = Column(String(80), nullable=False)
+    email = Column(String(120), unique=True, nullable=False)
+    suscription = Column(String(255), nullable=False)
+    favorites = relationship("Favorite", back_populates="user")
 
-class Planeta(Base):
-    __tablename__ = 'planeta'
-    id_planeta = Column(Integer, primary_key=True)
-    nombre = Column(String(255))
-    clima = Column(String(255))
-    terreno = Column(String(255))
-    poblacion = Column(Integer)
+class Planet(Base):
+    __tablename__ = 'planet'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False)
+    climate = Column(String(255))
+    terrain = Column(String(255))  # Corregido de 'land' a 'terrain'
+    population = Column(Integer)
+    favorites = relationship("Favorite", back_populates="planet")
 
-class Personaje(Base):
-    __tablename__ = 'personaje'
-    id_personaje = Column(Integer, primary_key=True)
-    nombre = Column(String(255))
-    altura = Column(Float)
-    peso = Column(Float)
-    genero = Column(String(255))
-    especie = Column(String(255))
+class People(Base):
+    __tablename__ = 'people'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False, unique=True)
+    height = Column(Float, nullable=False)
+    weight = Column(Float, nullable=False)
+    gender = Column(String(255))
+    specie = Column(String(255))
+    favorites = relationship("Favorite", back_populates="people")
 
-class Favorito(Base):
-    __tablename__ = 'favorito'
-    id_favorito = Column(Integer, primary_key=True)
-    id_usuario = Column(Integer, ForeignKey('usuario.id_usuario'), nullable=True)
-    id_planeta = Column(Integer, ForeignKey('planet.id_planeta'), nullable=True)
-    id_personaje = Column(Integer, ForeignKey('personaje.id_personaje'), nullable=True)
+class Favorite(Base):
+    __tablename__ = 'favorite'
+    id = Column(Integer, primary_key=True)
+    name = Column(String(255), nullable=False, unique=True)
+    id_user = Column(Integer, ForeignKey('user.id'), nullable=True)
+    id_planet = Column(Integer, ForeignKey('planet.id'), nullable=True)
+    id_people = Column(Integer, ForeignKey('people.id'), nullable=True)
     
-    usuario = relationship("Usuario", foreign_keys=[id_usuario])
-    planeta = relationship("Planeta", foreign_keys=[id_planeta])
-    personaje = relationship("Personaje", foreign_keys=[id_personaje])
+    user = relationship("User", back_populates="favorites")
+    planet = relationship("Planet", back_populates="favorites")
+    people = relationship("People", back_populates="favorites")
 
-## Draw from SQLAlchemy base
+# Generar el diagrama
 render_er(Base, 'diagram.png')
